@@ -56,6 +56,13 @@ app = FastAPI()
 
 
 def verify_password(plain_password, hashed_password):
+    """
+    Verifies the password
+
+    :param plain_password: the raw password
+    :param hashed_password: the password, already hashed
+    :return: the boolean to determine whether the password is correct
+    """
     return pwd_context.verify(plain_password, hashed_password)
 
 
@@ -122,16 +129,19 @@ async def get_current_active_user(
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
-'''
-Create a timedelta with the expiration time of the token.
 
-Create a real JWT access token and return it.
-'''
 @app.post("/token")
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> Token:
     user = authenticate_user(fake_users_db, form_data.username, form_data.password)
+    """
+    Create a timedelta with the expiration time of the token.
+    Create a real JWT access token and return it.
+
+    Keyword arguments:
+    form_data -- an annotated list of the data (default 0.0)
+    """
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

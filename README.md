@@ -14,6 +14,13 @@ You may need to run this more than once.
 poetry install
 ```
 
+Setup migrations to create the tables.
+```
+python app/backend_pre_start.py
+alembic upgrade head
+python app/initial_data.py
+```
+
 ## How To Run The Server
 Run this every time you want to run the server.
 ```

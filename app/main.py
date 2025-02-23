@@ -1,8 +1,9 @@
+import os
+import threading
 
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from starlette.middleware.cors import CORSMiddleware
-from prometheus_fastapi_instrumentator import Instrumentator
 
 from app.api.main import api_router
 from app.core.config import settings
@@ -31,4 +32,8 @@ if settings.BACKEND_CORS_ORIGINS:
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
-Instrumentator().instrument(app).expose(app)
+if os.getenv("ENABLE_METRICS", "") == "1":
+    from prometheus_fastapi_instrumentator import Instrumentator
+    from prometheus_client import start_http_server
+    start_http_server(port=9090)
+    Instrumentator().instrument(app).expose(app)

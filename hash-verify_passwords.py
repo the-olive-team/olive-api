@@ -1,6 +1,6 @@
 # Hashes and verifies passwords
-from datetime import datetime, timedelta, timezone
-from typing import Annotated, Union
+from datetime import UTC, datetime, timedelta
+from typing import Annotated
 
 import jwt
 from fastapi import Depends, FastAPI, HTTPException, status
@@ -22,7 +22,9 @@ fake_users_db = {
         "username": "johndoe",
         "full_name": "John Doe",
         "email": "johndoe@example.com",
-        "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
+        "hashed_password": (
+            "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW"
+        ),
         "disabled": False,
     }
 }
@@ -34,14 +36,14 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    username: Union[str, None] = None
+    username: str | None = None
 
 
 class User(BaseModel):
     username: str
-    email: Union[str, None] = None
-    full_name: Union[str, None] = None
-    disabled: Union[bool, None] = None
+    email: str | None = None
+    full_name: str | None = None
+    disabled: bool | None = None
 
 
 class UserInDB(User):
@@ -84,24 +86,30 @@ def authenticate_user(fake_db, username: str, password: str):
         return False
     return user
 
-'''
+
+"""
 Generates a new token
-'''
-def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None):
+"""
+
+
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.now(timezone.utc) + expires_delta
+        expire = datetime.now(UTC) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+        expire = datetime.now(UTC) + timedelta(minutes=15)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-'''
+
+"""
 Receives JWT tokens.
 Decode the received token, verify it, and return the current user.
 If the token is invalid, return an HTTP error right away.
-'''
+"""
+
+
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,

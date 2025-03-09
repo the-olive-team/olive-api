@@ -1,28 +1,22 @@
-FROM python:3.12-slim
+# Based on these resources:
+# - https://docs.astral.sh/uv/guides/integration/docker/ 
+# - https://github.com/astral-sh/uv-docker-example/blob/main/Dockerfile
+# - https://docs.astral.sh/uv/guides/integration/fastapi/
+# - https://github.com/astral-sh/uv-fastapi-example/blob/main/Dockerfile
+# - https://github.com/astral-sh/uv-docker-example/blob/main/multistage.Dockerfile
 
-WORKDIR /app/
+# Python image with uv pre-installed
+FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim
 
-RUN apt update && apt install -y curl
-
-# Install Poetry
-RUN curl -sSL https://install.python-poetry.org | POETRY_HOME=/opt/poetry python && \
-    cd /usr/local/bin && \
-    ln -s /opt/poetry/bin/poetry && \
-    poetry config virtualenvs.create false
-
-# Copy poetry.lock* in case it doesn't exist in the repo
-COPY ./pyproject.toml ./poetry.lock* /app/
-
-RUN bash -c "poetry install --no-root"
+WORKDIR /app
 
 ENV PYTHONPATH=/app
+ENV UV_COMPILE_BYTECODE=1
+ENV PATH="$PATH:/app/.venv/bin"
 
-COPY ./scripts/ /app/
-
-COPY ./alembic.ini /app/
-
-COPY ./prestart.sh /app/
-
+COPY ./pyproject.toml ./uv.lock ./scripts/ ./alembic.ini ./prestart.sh /app/
 COPY ./app /app/app
+
+RUN uv sync --frozen --no-cache
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]

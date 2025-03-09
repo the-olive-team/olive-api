@@ -121,7 +121,9 @@ class Recipe(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     title: str = Field(max_length=50)
     description: str | None = Field(default=None, max_length=255)
-    recipe_id: uuid.UUID = Field(default_factory=uuid.uuid4)  # this is going to be the id to use for the api
+    recipe_id: uuid.UUID = Field(
+        default_factory=uuid.uuid4
+    )  # this is going to be the id to use for the api
     owner_id: uuid.UUID = Field(
         foreign_key="user.id", nullable=False, ondelete="CASCADE"
     )

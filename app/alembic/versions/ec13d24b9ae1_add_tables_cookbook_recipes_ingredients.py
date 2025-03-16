@@ -1,8 +1,8 @@
-"""remove items model
+"""add tables cookbook, recipes, ingredients
 
-Revision ID: 79b79afdb044
+Revision ID: ec13d24b9ae1
 Revises: 7547b3054552
-Create Date: 2025-03-16 07:47:13.941947
+Create Date: 2025-03-16 08:20:42.800847
 
 """
 from alembic import op
@@ -11,7 +11,7 @@ import sqlmodel.sql.sqltypes
 
 
 # revision identifiers, used by Alembic.
-revision = '79b79afdb044'
+revision = 'ec13d24b9ae1'
 down_revision = '7547b3054552'
 branch_labels = None
 depends_on = None

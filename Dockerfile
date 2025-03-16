@@ -8,8 +8,6 @@
 # Python image with uv pre-installed
 FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim
 
-WORKDIR /app
-
 ENV PYTHONPATH=/app
 ENV UV_COMPILE_BYTECODE=1
 ENV PATH="$PATH:/app/.venv/bin"
@@ -17,6 +15,6 @@ ENV PATH="$PATH:/app/.venv/bin"
 COPY ./pyproject.toml ./uv.lock ./scripts/ ./alembic.ini ./prestart.sh /app/
 COPY ./app /app/app
 
-RUN uv sync --frozen --no-cache
+RUN cd /app && uv sync --frozen --no-cache
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]

@@ -101,6 +101,11 @@ class CookbookPublic(CookbookBase):
     visibility: VisibilityEnum
 
 
+class CookbooksPublic(SQLModel):
+    data: list[CookbookPublic]
+    count: int
+
+
 class CookbookCreate(CookbookBase):
     pass
 

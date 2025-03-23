@@ -2,7 +2,7 @@ import uuid
 from enum import Enum
 
 from pydantic import EmailStr
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Field, SQLModel
 
 
 # Shared properties
@@ -64,7 +64,7 @@ class Message(SQLModel):
 # JSON payload containing access token
 class Token(SQLModel):
     access_token: str
-    token_type: str = "bearer"
+    token_type: str = 'bearer'
 
 
 # Contents of JWT token
@@ -78,8 +78,8 @@ class NewPassword(SQLModel):
 
 
 class VisibilityEnum(str, Enum):
-    public = "public"
-    private = "private"
+    public = 'public'
+    private = 'private'
 
 
 class CookbookBase(SQLModel):
@@ -91,9 +91,7 @@ class CookbookBase(SQLModel):
 
 class Cookbook(CookbookBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    owner_id: uuid.UUID = Field(
-        foreign_key="user.id", nullable=False, ondelete="CASCADE"
-    )
+    owner_id: uuid.UUID = Field(foreign_key='user.id', nullable=False, ondelete='CASCADE')
     visibility: VisibilityEnum = Field(default=VisibilityEnum.private)
 
 
@@ -109,12 +107,8 @@ class CookbookCreate(CookbookBase):
 
 class CookbookSave(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    user_id: uuid.UUID = Field(
-        foreign_key="user.id", nullable=False, ondelete="CASCADE"
-    )
-    cookbook_id: uuid.UUID = Field(
-        foreign_key="cookbook.id", nullable=False, ondelete="CASCADE"
-    )
+    user_id: uuid.UUID = Field(foreign_key='user.id', nullable=False, ondelete='CASCADE')
+    cookbook_id: uuid.UUID = Field(foreign_key='cookbook.id', nullable=False, ondelete='CASCADE')
 
 
 class Recipe(SQLModel, table=True):
@@ -122,9 +116,7 @@ class Recipe(SQLModel, table=True):
     title: str = Field(max_length=50)
     description: str | None = Field(default=None, max_length=255)
     recipe_id: uuid.UUID = Field(default_factory=uuid.uuid4)  # this is going to be the id to use for the api
-    owner_id: uuid.UUID = Field(
-        foreign_key="user.id", nullable=False, ondelete="CASCADE"
-    )
+    owner_id: uuid.UUID = Field(foreign_key='user.id', nullable=False, ondelete='CASCADE')
 
 
 class Ingredient(SQLModel, table=True):
@@ -136,12 +128,8 @@ class Ingredient(SQLModel, table=True):
 
 class RecipeIngredient(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    recipe_id: uuid.UUID = Field(
-        foreign_key="recipe.id", nullable=False, ondelete="CASCADE"
-    )
-    ingredient_id: uuid.UUID = Field(
-        foreign_key="ingredient.id", nullable=False, ondelete="CASCADE"
-    )
+    recipe_id: uuid.UUID = Field(foreign_key='recipe.id', nullable=False, ondelete='CASCADE')
+    ingredient_id: uuid.UUID = Field(foreign_key='ingredient.id', nullable=False, ondelete='CASCADE')
     quantity: int
     unit: str | None = Field(default=None, max_length=25)
     comments: str | None = Field(default=None, max_length=255)

@@ -101,14 +101,26 @@ class CookbookPublic(CookbookBase):
     visibility: VisibilityEnum
 
 
+class CookbooksPublic(SQLModel):
+    data: list[CookbookPublic]
+    count: int
+
+
 class CookbookCreate(CookbookBase):
     pass
 
 
-class CookbookSave(SQLModel, table=True):
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+class CookbookSaveBase(SQLModel):
     user_id: uuid.UUID = Field(foreign_key='user.id', nullable=False, ondelete='CASCADE')
     cookbook_id: uuid.UUID = Field(foreign_key='cookbook.id', nullable=False, ondelete='CASCADE')
+
+
+class CookbookSaveCreate(CookbookSaveBase):
+    pass
+
+
+class CookbookSave(CookbookSaveBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
 
 
 class Recipe(SQLModel, table=True):

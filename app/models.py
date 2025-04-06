@@ -1,7 +1,8 @@
 import uuid
 from enum import Enum
 
-from pydantic import EmailStr
+from fastapi import UploadFile
+from pydantic import BaseModel, EmailStr
 from sqlmodel import Field, SQLModel
 
 
@@ -129,6 +130,12 @@ class Ingredient(SQLModel, table=True):
     ingredient: str = Field(max_length=50)
     description: str | None = Field(default=None, max_length=255)
     image: str | None = Field(default=None, max_length=50)
+
+
+class IngredientCreate(BaseModel):
+    ingredient: str
+    description: str | None = None
+    image: UploadFile | None = None
 
 
 class RecipeIngredient(SQLModel, table=True):

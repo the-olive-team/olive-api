@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException
 from sqlmodel import func, select
 
 from app.api.deps import CurrentUser, SessionDep
-from app.models import Cookbook, CookbookCreate, CookbookPublic, CookbooksPublic
+from app.models import Cookbook, CookbookCreate, CookbookPublic, CookbookSave, CookbookSaveCreate, CookbooksPublic
 
 router = APIRouter()
 
@@ -75,3 +75,18 @@ def delete_cookbook(cookbook_id: uuid.UUID, session: SessionDep, current_user: C
     session.delete(cookbook)
     session.commit()
     return cookbook
+
+
+@router.post('/{cookbook_id}/save', response_model=CookbookSaveCreate)
+def save_cookbook(cookbook_id: uuid.UUID, session: SessionDep, current_user: CurrentUser) -> Any:
+    cookbook = session.get(Cookbook, cookbook_id)
+    if not cookbook:
+        raise HTTPException(
+            status_code=404,
+            detail='The cookbook was not found',
+        )
+    cookbook_save = CookbookSave.model_validate(CookbookSaveCreate(user_id=current_user.id, cookbook_id=cookbook_id))
+    session.add(cookbook_save)
+    session.commit()
+    session.refresh(cookbook_save)
+    return cookbook_save

@@ -110,18 +110,38 @@ class CookbookCreate(CookbookBase):
     pass
 
 
-class CookbookSave(SQLModel, table=True):
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+class CookbookSaveBase(SQLModel):
     user_id: uuid.UUID = Field(foreign_key='user.id', nullable=False, ondelete='CASCADE')
     cookbook_id: uuid.UUID = Field(foreign_key='cookbook.id', nullable=False, ondelete='CASCADE')
 
 
-class Recipe(SQLModel, table=True):
+class CookbookSaveCreate(CookbookSaveBase):
+    pass
+
+
+class CookbookSave(CookbookSaveBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+
+
+class RecipeBase(SQLModel):
     title: str = Field(max_length=50)
     description: str | None = Field(default=None, max_length=255)
-    recipe_id: uuid.UUID = Field(default_factory=uuid.uuid4)  # this is going to be the id to use for the api
+
+
+class Recipe(RecipeBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     owner_id: uuid.UUID = Field(foreign_key='user.id', nullable=False, ondelete='CASCADE')
+    cookbook_id: uuid.UUID = Field(foreign_key='cookbook.id', nullable=False, ondelete='CASCADE')
+
+
+class RecipePublic(RecipeBase):
+    id: uuid.UUID
+    owner_id: uuid.UUID
+    cookbook_id: uuid.UUID
+
+
+class RecipeCreate(RecipeBase):
+    cookbook_id: uuid.UUID
 
 
 class Ingredient(SQLModel, table=True):

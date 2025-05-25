@@ -1,10 +1,16 @@
 #! /usr/bin/env bash
 
+source venv/bin/activate
+
+uv sync
+
+source .env
+
 # Let the DB start
-python app/backend_pre_start.py
+PYTHONPATH=. uv run python app/backend_pre_start.py
 
 # Run migrations
-alembic upgrade head
+PYTHONPATH=. uv run alembic upgrade head
 
 # Create initial data in DB
-python app/initial_data.py
+PYTHONPATH=. uv run python app/initial_data.py

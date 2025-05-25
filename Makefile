@@ -17,4 +17,10 @@ $(VENV_INSTALLED): pyproject.toml $(UV_INSTALLED)
 	./prestart.sh
 	touch $@
 
+.PHONY: venv
 $(VENV): $(VENV_INSTALLED)
+
+
+.PHONY: run_local
+run_local: $(VENV)
+	./run_local.sh

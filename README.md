@@ -19,7 +19,7 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 ### Install Minikube
 
 See https://gist.github.com/wholroyd/748e09ca0b78897750791172b2abb051 for wsl.
-Note when debugging, `minikube dashboard` can be used tto view pods in cluster.
+Note when debugging, `minikube dashboard` can be used to view pods in cluster.
 
 
 ### Sync with `uv`

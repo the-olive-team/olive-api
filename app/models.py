@@ -144,11 +144,27 @@ class RecipeCreate(RecipeBase):
     cookbook_id: uuid.UUID
 
 
-class Ingredient(SQLModel, table=True):
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    ingredient: str = Field(max_length=50)
+class IngredientBase(SQLModel):
+    ingredient: str = Field(min_length=1, max_length=50)
     description: str | None = Field(default=None, max_length=255)
     image: str | None = Field(default=None, max_length=50)
+
+
+class Ingredient(IngredientBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+
+
+class IngredientPublic(IngredientBase):
+    id: uuid.UUID
+
+
+class IngredientCreate(IngredientBase):
+    pass
+
+
+class IngredientsPublic(SQLModel):
+    data: list[IngredientPublic]
+    count: int
 
 
 class RecipeIngredient(SQLModel, table=True):

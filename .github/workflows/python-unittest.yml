@@ -4,6 +4,10 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      PROJECT_NAME: "Olive Test"
+      DATABASE_URL: "postgresql://user:password@localhost/test_db")
+
     strategy:
       matrix:
         python-version: [ '3.12', '3.13' ]

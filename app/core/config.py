@@ -47,7 +47,7 @@ class Settings(BaseSettings):
     POSTGRES_SERVER: str
     POSTGRES_PORT: int = 5432
     POSTGRES_USER: str = 'postgres'
-    POSTGRES_PASSWORD: str = os.environ.get('POSTGRES_PASSWORD')
+    POSTGRES_PASSWORD: str | None = os.environ.get('POSTGRES_PASSWORD')
     POSTGRES_DB: str = 'olive'
 
     @computed_field  # type: ignore[prop-decorator]
@@ -88,8 +88,8 @@ class Settings(BaseSettings):
     # TODO: update type to EmailStr when sqlmodel supports it
     EMAIL_TEST_USER: str = 'test@example.com'
     # TODO: update type to EmailStr when sqlmodel supports it
-    FIRST_SUPERUSER: str
-    FIRST_SUPERUSER_PASSWORD: str
+    FIRST_SUPERUSER: str | None = os.environ.get('FIRST_SUPERUSER')
+    FIRST_SUPERUSER_PASSWORD: str | None = os.environ.get('FIRST_SUPERUSER_PASSWORD')
 
     def _check_default_secret(self, var_name: str, value: str | None) -> None:
         if value == 'changethis':

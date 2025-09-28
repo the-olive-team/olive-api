@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PROJECT_NAME: "Olive Test"
-      DATABASE_URL: "postgresql://user:password@localhost/test_db")
+      POSTGRES_SERVER: "localhost"
 
     strategy:
       matrix:

@@ -3,7 +3,7 @@ name = "olive"
 version = "0.1.0"
 description = ""
 authors = [{ name = "Olive Team", email = "olive@arboretum.dev" }]
-requires-python = "~=3.13"
+requires-python = "~=3.13.0"
 dependencies = [
     "uvicorn[standard]>=0.24.0.post1,<0.25",
     "fastapi>=0.109.1,<0.110",

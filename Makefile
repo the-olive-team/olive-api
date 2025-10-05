@@ -4,6 +4,7 @@ HELM_INSTALLED := .installed_helm
 KUBE_INSTALLED := .installed_kubectl
 VENV := venv
 VENV_INSTALLED := $(VENV)/.installed
+PRESTART := false
 
 .PHONY: build
 build:
@@ -37,4 +38,6 @@ $(VENV): $(VENV_INSTALLED)
 
 .PHONY: run_local
 run_local: $(VENV)
+	@echo "Running run_local"
+	@if [ "$(PRESTART)" = "true" ]; then echo "Running prestart"; ./prestart.sh; fi
 	./run_local.sh

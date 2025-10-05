@@ -1,5 +1,3 @@
 #! /usr/bin/env bash
 
-source venv/bin/activate
-
-source .env && uv run -- fastapi dev app/main.py
+uv run -- fastapi dev app/main.py --host 0.0.0.0 --port 8000

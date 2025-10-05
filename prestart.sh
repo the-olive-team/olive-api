@@ -1,10 +1,10 @@
 #! /usr/bin/env bash
 
-source venv/bin/activate
-
 uv sync
 
-source .env
+if [ -f .env ]; then 
+    source .env
+fi
 
 # Let the DB start
 PYTHONPATH=. uv run python app/backend_pre_start.py

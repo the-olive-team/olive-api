@@ -3,10 +3,12 @@ from collections.abc import Generator
 
 import pytest
 from fastapi.testclient import TestClient
+from moto import mock_aws
 from sqlmodel import Session, SQLModel, create_engine
 from sqlmodel.pool import StaticPool
 
 from app.api.deps import get_current_user, get_db
+from app.core.config import settings
 from app.core.security import get_password_hash
 from app.main import app
 from app.models import User
@@ -138,3 +140,16 @@ def superuser_client_fixture(session: Session, superuser: User) -> Generator[Aut
     client = AuthenticatedTestClient(app, superuser)
     yield client
     app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def mocked_aws():
+    """Mocked AWS with arbitrary S3 settings"""
+    settings.S3_ENDPOINT_URL = None
+    settings.S3_ACCESS_KEY_ID = 'testing'
+    settings.S3_SECRET_ACCESS_KEY = 'testing'
+    settings.S3_REGION = 'testing'
+    settings.S3_USE_SSL = 'testing'
+    settings.S3_BUCKET_NAME = 'testing'
+    with mock_aws():
+        yield

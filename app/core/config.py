@@ -109,5 +109,12 @@ class Settings(BaseSettings):
 
         return self
 
+    S3_ENDPOINT_URL: str | None = os.environ.get('S3_ENDPOINT_URL')
+    S3_ACCESS_KEY_ID: str | None = os.environ.get('S3_ACCESS_KEY_ID')
+    S3_SECRET_ACCESS_KEY: str | None = os.environ.get('S3_SECRET_ACCESS_KEY')
+    S3_REGION: str | None = os.environ.get('S3_REGION')
+    S3_USE_SSL: str | None = os.environ.get('S3_USE_SSL')
+    S3_BUCKET_NAME: str | None = os.environ.get('S3_BUCKET_NAME')
+
 
 settings = Settings()  # type: ignore

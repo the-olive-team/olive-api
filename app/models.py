@@ -83,8 +83,8 @@ class VisibilityEnum(str, Enum):
 
 
 class CookbookBase(SQLModel):
-    cover: str | None = Field(default=None, max_length=50)
-    thumbnail: str | None = Field(default=None, max_length=50)
+    cover: str | None = Field(default=None, max_length=512)
+    thumbnail: str | None = Field(default=None, max_length=512)
     title: str = Field(max_length=50)
     description: str | None = Field(default=None, max_length=255)
 
@@ -147,7 +147,7 @@ class RecipeCreate(RecipeBase):
 class IngredientBase(SQLModel):
     ingredient: str = Field(min_length=1, max_length=50)
     description: str | None = Field(default=None, max_length=255)
-    image: str | None = Field(default=None, max_length=50)
+    image: str | None = Field(default=None, max_length=512)
 
 
 class Ingredient(IngredientBase, table=True):

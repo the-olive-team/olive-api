@@ -100,7 +100,7 @@ class TestCreateIngredient:
         # Test image too long
         ingredient_data = {
             'ingredient': 'Valid ingredient',
-            'image': 'x' * 51,  # Exceeds max_length=50
+            'image': 'x' * 1025,  # Exceeds max_length=1024
         }
 
         response = auth_client.post('/api/v1/ingredients/', json=ingredient_data)

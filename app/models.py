@@ -132,6 +132,8 @@ class Recipe(RecipeBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     owner_id: uuid.UUID = Field(foreign_key='user.id', nullable=False, ondelete='CASCADE')
     cookbook_id: uuid.UUID = Field(foreign_key='cookbook.id', nullable=False, ondelete='CASCADE')
+    cloned_from: uuid.UUID | None = Field(default=None, foreign_key='recipe.id', nullable=True)
+    tags: str | None = Field(default=None, max_length=500)  # JSON array stored as string
 
 
 class RecipePublic(RecipeBase):
@@ -142,6 +144,28 @@ class RecipePublic(RecipeBase):
 
 class RecipeCreate(RecipeBase):
     cookbook_id: uuid.UUID
+
+
+class RecipeIngredientUpdate(SQLModel):
+    quantity: int
+    unit: str | None = Field(default=None, max_length=25)
+    comments: str | None = Field(default=None, max_length=255)
+    ingredient_id: uuid.UUID
+
+
+class RecipeStepUpdate(SQLModel):
+    step_instructions: str = Field(max_length=1000)
+    step_picture: str | None = Field(default=None)  # Base64 encoded image or None
+
+
+class RecipeUpdate(SQLModel):
+    cookbook_uuid: uuid.UUID
+    title: str = Field(max_length=50)
+    description: str | None = Field(default=None, max_length=255)
+    cloned_from: uuid.UUID | None = None
+    tags: list[str] = Field(default_factory=list)
+    recipe_ingredients: list[RecipeIngredientUpdate] = Field(default_factory=list)
+    recipe_steps: list[RecipeStepUpdate] = Field(default_factory=list)
 
 
 class IngredientBase(SQLModel):
@@ -174,4 +198,12 @@ class RecipeIngredient(SQLModel, table=True):
     quantity: int
     unit: str | None = Field(default=None, max_length=25)
     comments: str | None = Field(default=None, max_length=255)
+    order_number: int
+
+
+class RecipeStep(SQLModel, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    recipe_id: uuid.UUID = Field(foreign_key='recipe.id', nullable=False, ondelete='CASCADE')
+    step_instructions: str = Field(max_length=1000)
+    step_picture: str | None = Field(default=None, max_length=512)  # S3 key
     order_number: int

@@ -34,7 +34,7 @@ dev = [
     "coverage>=7.4.3,<8",
     "ruff>=0.9.10",
     "pre-commit>=3.8.0",
-    "moto[s3]>=5.1.16",
+    "moto[s3]>=5.1.16,<6",
 ]
 
 [tool.mypy]

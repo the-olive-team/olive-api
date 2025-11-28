@@ -207,3 +207,22 @@ class RecipeStep(SQLModel, table=True):
     step_instructions: str = Field(max_length=1000)
     step_picture: str | None = Field(default=None, max_length=512)  # S3 key
     order_number: int
+
+
+class RecipeReferenceBase(SQLModel):
+    url: str = Field(max_length=512)
+    author: str = Field(max_length=255)
+
+
+class RecipeReference(RecipeReferenceBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    recipe_id: uuid.UUID = Field(foreign_key='recipe.id', nullable=False, ondelete='CASCADE')
+
+
+class RecipeReferencePublic(RecipeReferenceBase):
+    id: uuid.UUID
+    recipe_id: uuid.UUID
+
+
+class RecipeReferenceCreate(RecipeReferenceBase):
+    pass

@@ -15,6 +15,9 @@ from app.models import (
     RecipeCreate,
     RecipeIngredient,
     RecipePublic,
+    RecipeReference,
+    RecipeReferenceCreate,
+    RecipeReferencePublic,
     RecipeStep,
     RecipeUpdate,
 )
@@ -193,6 +196,36 @@ async def update_recipe(
     session.commit()
     session.refresh(recipe)
     return recipe
+
+
+@router.post('/{recipe_uuid}/references', response_model=RecipeReferencePublic)
+def create_recipe_reference(
+    recipe_uuid: uuid.UUID,
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    item_in: RecipeReferenceCreate,
+) -> Any:
+    """
+    Create a new reference for a recipe.
+    """
+    recipe = session.get(Recipe, recipe_uuid)
+    if not recipe:
+        raise HTTPException(
+            status_code=404,
+            detail='The recipe was not found',
+        )
+    if recipe.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="The user doesn't have enough privileges",
+        )
+
+    reference = RecipeReference.model_validate(item_in, update={'recipe_id': recipe_uuid})
+    session.add(reference)
+    session.commit()
+    session.refresh(reference)
+    return reference
 
 
 @router.delete('/{recipe_id}', response_model=RecipePublic)

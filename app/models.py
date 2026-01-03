@@ -207,3 +207,12 @@ class RecipeStep(SQLModel, table=True):
     step_instructions: str = Field(max_length=1000)
     step_picture: str | None = Field(default=None, max_length=512)  # S3 key
     order_number: int
+
+
+class SearchResults(SQLModel):
+    """Search results response."""
+
+    cookbooks: list[CookbookPublic] = Field(default_factory=list)
+    recipes: list[RecipePublic] = Field(default_factory=list)
+    ingredients: list[IngredientPublic] = Field(default_factory=list)
+    total_count: int

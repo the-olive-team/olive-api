@@ -15,6 +15,9 @@ from app.models import (
     RecipeCreate,
     RecipeIngredient,
     RecipePublic,
+    RecipeReference,
+    RecipeReferenceCreate,
+    RecipeReferencePublic,
     RecipeStep,
     RecipeUpdate,
 )
@@ -71,34 +74,7 @@ async def update_recipe(
     Update recipe by id.
     """
     recipe = session.get(Recipe, recipe_uuid)
-    if not recipe:
-        raise HTTPException(
-            status_code=404,
-            detail='The recipe was not found',
-        )
-    if recipe.owner_id != current_user.id:
-        raise HTTPException(
-            status_code=403,
-            detail="The user doesn't have enough privileges",
-        )
-
-    # Validate cookbook exists
-    cookbook = session.get(Cookbook, item_in.cookbook_uuid)
-    if not cookbook:
-        raise HTTPException(
-            status_code=400,
-            detail='The cookbook does not exist',
-        )
-
-    # Validate cloned_from recipe exists if provided
-    if item_in.cloned_from:
-        cloned_recipe = session.get(Recipe, item_in.cloned_from)
-        if not cloned_recipe:
-            raise HTTPException(
-                status_code=400,
-                detail='The cloned_from recipe does not exist',
-            )
-
+    validate_recipe_update(recipe, item_in, session, current_user)
     # Update recipe fields
     recipe.title = item_in.title
     recipe.description = item_in.description
@@ -122,27 +98,17 @@ async def update_recipe(
 
     session.commit()
 
-    # Create new recipe ingredients
-    for idx, ingredient_data in enumerate(item_in.recipe_ingredients):
-        # Validate ingredient exists
-        ingredient = session.get(Ingredient, ingredient_data.ingredient_id)
-        if not ingredient:
-            raise HTTPException(
-                status_code=400,
-                detail=f'Ingredient with id {ingredient_data.ingredient_id} does not exist',
-            )
-
-        recipe_ingredient = RecipeIngredient(
-            recipe_id=recipe_uuid,
-            ingredient_id=ingredient_data.ingredient_id,
-            quantity=ingredient_data.quantity,
-            unit=ingredient_data.unit,
-            comments=ingredient_data.comments,
-            order_number=idx,
-        )
-        session.add(recipe_ingredient)
+    create_ingredients(recipe_uuid, item_in, session)
 
     # Create new recipe steps
+    create_steps(recipe_uuid, item_in, session)
+    session.add(recipe)
+    session.commit()
+    session.refresh(recipe)
+    return recipe
+
+
+def create_steps(recipe_uuid: uuid.UUID, item_in: RecipeUpdate, session: SessionDep) -> None:
     for idx, step_data in enumerate(item_in.recipe_steps):
         step_picture_key = None
         if step_data.step_picture:
@@ -189,10 +155,91 @@ async def update_recipe(
         )
         session.add(recipe_step)
 
-    session.add(recipe)
+
+def create_ingredients(recipe_uuid: uuid.UUID, item_in: RecipeUpdate, session: SessionDep) -> None:
+    # Create new recipe ingredients
+    for idx, ingredient_data in enumerate(item_in.recipe_ingredients):
+        # Validate ingredient exists
+        ingredient = session.get(Ingredient, ingredient_data.ingredient_id)
+        if not ingredient:
+            raise HTTPException(
+                status_code=400,
+                detail=f'Ingredient with id {ingredient_data.ingredient_id} does not exist',
+            )
+
+        recipe_ingredient = RecipeIngredient(
+            recipe_id=recipe_uuid,
+            ingredient_id=ingredient_data.ingredient_id,
+            quantity=ingredient_data.quantity,
+            unit=ingredient_data.unit,
+            comments=ingredient_data.comments,
+            order_number=idx,
+        )
+        session.add(recipe_ingredient)
+
+
+def validate_recipe_update(
+    recipe: Recipe, item_in: RecipeUpdate, session: SessionDep, current_user: CurrentUser
+) -> None:
+    if not recipe:
+        raise HTTPException(
+            status_code=404,
+            detail='The recipe was not found',
+        )
+    if recipe.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="The user doesn't have enough privileges",
+        )
+
+    # Validate cookbook exists
+    cookbook = session.get(Cookbook, item_in.cookbook_uuid)
+    if not cookbook:
+        raise HTTPException(
+            status_code=400,
+            detail='The cookbook does not exist',
+        )
+
+    # Validate cloned_from recipe exists if provided
+    if item_in.cloned_from:
+        cloned_recipe = session.get(Recipe, item_in.cloned_from)
+        if not cloned_recipe:
+            raise HTTPException(
+                status_code=400,
+                detail='The cloned_from recipe does not exist',
+            )
+
+    return True
+
+
+@router.post('/{recipe_uuid}/references', response_model=RecipeReferencePublic)
+def create_recipe_reference(
+    recipe_uuid: uuid.UUID,
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    item_in: RecipeReferenceCreate,
+) -> Any:
+    """
+    Create a new reference for a recipe.
+    """
+    recipe = session.get(Recipe, recipe_uuid)
+    if not recipe:
+        raise HTTPException(
+            status_code=404,
+            detail='The recipe was not found',
+        )
+    if recipe.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="The user doesn't have enough privileges",
+        )
+
+    reference = RecipeReference.model_validate(item_in, update={'recipe_id': recipe_uuid})
+    session.add(reference)
     session.commit()
-    session.refresh(recipe)
-    return recipe
+    session.refresh(reference)
+    return reference
 
 
 @router.delete('/{recipe_id}', response_model=RecipePublic)
